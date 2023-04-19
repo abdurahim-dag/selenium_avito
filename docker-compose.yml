@@ -1,0 +1,93 @@
+version: '3'
+services:
+
+  redis-ads:
+    image: redis:latest
+    container_name: redis-ads
+    hostname: redis-ads
+    expose:
+      - 6379
+    ports:
+      - 6380:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 50
+    restart: always
+
+  webdriver:
+    image: selenium/standalone-firefox:4.8.3-20230328
+    shm_size: '12gb'
+    environment:
+      SE_NODE_OVERRIDE_MAX_SESSIONS: true
+      SE_NODE_MAX_SESSIONS: 80
+    container_name: webdriver
+    hostname: webdriver
+    expose:
+      - 4444
+    ports:
+      - "4444:4444"
+
+  db-ads:
+    container_name: db-ads
+    build: db
+    environment:
+      POSTGRES_DB: ads
+      POSTGRES_USER: ads
+      POSTGRES_PASSWORD: ads
+      POSTGRES_HOST_AUTH_METHOD: md5
+    hostname: db-ads
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "ads"]
+      interval: 5s
+      retries: 5
+    ports:
+      - 5439:5432
+    volumes:
+      - ads-db-volume:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  worker:
+    build: app
+    container_name: worker
+    hostname: worker
+    volumes:
+      - ./screenshots:/screenshots
+    depends_on:
+      - db-ads
+      - redis-ads
+
+
+#  flower:
+#    build: app
+#    command: celery -A tasks flower
+#    ports:
+#      - 5555:5555
+#    environment:
+#      CELERY_BROKER_URL: redis://redis
+#      CELERY_RESULT_BACKEND: redis://redis
+#    depends_on:
+#      - ads-backend
+#      - redis
+#  frontend:
+#    build: frontend
+#    container_name: frontend
+#    hostname: frontend
+#    ports:
+#      - "8001:80"
+#    depends_on:
+#      - db
+
+#  celery:
+#    build: .
+#    container_name: celery
+#    hostname: celery
+#    links:
+#      - redis
+#    depends_on:
+#      - web
+#      - redis
+
+volumes:
+  ads-db-volume:

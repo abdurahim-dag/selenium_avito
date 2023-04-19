@@ -1,0 +1,16 @@
+﻿#понижение до 0
+alembic downgrade base
+alembic downgrade -1
+
+# создать миграцию
+alembic revision -m "create account table"
+# миграция
+alembic upgrade head
+alembic upgrade <ae1> <-- часть uuid
+
+# получить информацию
+alembic current
+
+
+luminati --www_whitelist_ips "0.0.0.0/0"  --iface "192.168.87.39"
+celery -A tasks worker -l Error -P gevent --concurrency=7 -f celery.logs
