@@ -4,7 +4,8 @@ import platform
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.firefox.service import Service as FirefoxService
+
+
 # def PrintException():
 #     exc_type, exc_obj, tb = sys.exc_info()
 #     f = tb.tb_frame
