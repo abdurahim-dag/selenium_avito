@@ -1,40 +1,26 @@
-import sys
-import os
 import re
 import time
-import json
 import psycopg2
-from functools import wraps
 
 from datetime import datetime, timedelta
 from logger import logger
-from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import ActionChains
-from selenium.webdriver.common.actions.action_builder import ActionBuilder
-from selenium.webdriver.common.actions.mouse_button import MouseButton
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
 from contextlib import contextmanager
 from requestz import Requestz
 from downloaderz import Downloaderz
-#from tasks import get_ad
 from sites import Sites, Xpaths
 from settings import Settings
-#logging.basicConfig(filename='avitospider.log',level=logger.warning)
 from typing import Generator, List, Optional
+
 
 # logging.basicConfig(handlers=[logging.FileHandler('avitospider.log', 'w', 'utf-8')],
 #   level=logger.warning,
 #   format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-
 class Spider:
-
-
     def __init__(self, settings: Settings, site_settings: Sites, xpaths: Xpaths):
         self.settings = settings
         self.site_settings = site_settings
@@ -168,7 +154,6 @@ class Spider:
 
         if url == driver.current_url:
             raise Exception('Нажатие кнопки след. страницы не привёл к переходу!')
-
 
 
     @checkOnRetry
