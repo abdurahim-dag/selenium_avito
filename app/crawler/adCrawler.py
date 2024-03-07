@@ -1,5 +1,6 @@
 import settings
-import psycopg2
+
+from .sql import avito as sql
 from tasks import get_ad
 
 
@@ -7,20 +8,17 @@ conn = psycopg2.connect(
     host=settings.HOSTNAME,
     user=settings.USERNAME,
     password=settings.PASSWORD,
-    dbname=settings.DATABASE
+    dbname=settings.DATABASE,
 )
 cur = conn.cursor()
 
-cur.execute(f"\
-	update avito_ad_urls \
-	set status='LOCK' \
-	where status='no'"
-)
+cur.execute(sql.lock_ad_urls)
 conn.commit()
 
 sql_string = "select id, url, tablez, locality, section_id from avito_ad_urls where status='LOCK'"
 cur.execute(sql_string)
 urls = cur.fetchall()
+
 for u in urls:
     id = u[0]
     url = u[1]
@@ -38,7 +36,7 @@ for u in urls:
         url,
         table,
         section_id,
-        settings.PATH_IMGS
+        settings.PATH_IMGS,
     )
 
 cur.close()

@@ -1,8 +1,8 @@
+from dataclasses import dataclass
 from pydantic import (
     BaseModel,
     Field,
     validator,
-    BaseSettings,
 )
 from pendulum import Date
 from decimal import Decimal
@@ -15,8 +15,10 @@ class Mixin(BaseModel):
 
 class AD_URL(Mixin):
     url: str
+    avito_id: int
     status: str
     tablez: str
+    status: str
     locality: str
     section_id: int
 
@@ -78,3 +80,11 @@ class AD_SALES_ZU(AD_SALES):
 class AD_SALES_COMMERCIAL(AD_SALES):
     pass
 
+
+@dataclass
+class Tables:
+    zu = "avito_ad_sales_zu"
+    flat = "avito_ad_sales_flat"
+    house = "avito_ad_sales_house"
+    garage = "avito_ad_sales_garage"
+    commercial = "avito_ad_sales_commercial"

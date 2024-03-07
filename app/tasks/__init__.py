@@ -13,12 +13,11 @@ import psycopg2
 from psycopg2.extensions import AsIs
 
 here = os.path.dirname(__file__)
-sys.path.append(os.path.join(here, '..'))
+sys.path.append(os.path.join(here, ".."))
 from crawler.settings import Settings
 from crawler.sites import Xpaths
 from crawler.downloaderz import Downloaderz
-from crawler.requestz import Requestz
-
+from app.crawler.request import Requestz
 
 
 celery = app
@@ -26,16 +25,12 @@ celery = app
 
 @contextmanager
 def get_connection(
-        host, port, username, password, db
+    host, port, username, password, db
 ) -> Generator[psycopg2.extensions.connection, None, None]:
-    """ Контекстный менеджер подкючения к БД."""
+    """Контекстный менеджер подкючения к БД."""
 
     conn = psycopg2.connect(
-        host=host,
-        port=port,
-        user=username,
-        password=password,
-        dbname=db
+        host=host, port=port, user=username, password=password, dbname=db
     )
 
     # Так как у нас скриптовая загрузка состоит из нескольких запросов - insert и select max(update_ts),
@@ -51,12 +46,14 @@ def get_connection(
     finally:
         conn.close()
 
+
 settings = Settings()
 host = settings.db_host
 username = settings.db_username
 password = settings.db_password
 port = settings.db_port
 db = settings.db_name
+
 
 @app.task
 def start_task():
@@ -81,20 +78,27 @@ def start_task():
                     curs.execute(sql, (str(row[0]),))
                     conn.commit()
                     get_ad.apply_async(
-                        (row[4], host, port, username, password, db, row[0], row[1], row[2], row[3]),
-                        max_retries=4, retry_delay=10, task_kwargs={'retry': True}, countdown=120,
+                        (
+                            row[4],
+                            host,
+                            port,
+                            username,
+                            password,
+                            db,
+                            row[0],
+                            row[1],
+                            row[2],
+                            row[3],
+                        ),
+                        max_retries=4,
+                        retry_delay=10,
+                        task_kwargs={"retry": True},
+                        countdown=120,
                         time_limit=90,
                     )
                 else:
                     logging.warning("Нет объявлений на обработку!")
                     break
-
-
-
-
-
-
-
 
         # task_group = group(get_ad.s() for _ in range(20)).apply_async(
         #         priority=255, max_retries=3,
@@ -112,9 +116,6 @@ def start_task():
     # )
     # with allow_join_result():
     #     result_group.get()
-
-
-
 
 
 @signals.worker_ready.connect

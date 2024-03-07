@@ -3,4 +3,4 @@ from sites import Sites, Xpaths
 from settings import Settings
 
 spider = Spider(Settings(), Sites(), Xpaths())
-spider.start_requests()
+spider.start()
